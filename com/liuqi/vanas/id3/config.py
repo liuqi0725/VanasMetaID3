@@ -14,7 +14,7 @@ from enum import Enum,unique,auto
 import mutagen.id3
 
 @unique
-class Id3Attribute (Enum):
+class Mp3Info (Enum):
 
     # 时间 秒
     TIME = ("time",0)
@@ -48,33 +48,33 @@ class Id3Attribute (Enum):
     IMAGE = ("image",None)
 
 @unique
-class Id3V1Tag (Enum):
+class Id3Tag (Enum):
 
     # 歌曲名称
-    TITLE = ("TIT2", Id3Attribute.TITLE.value[0] , mutagen.id3.TIT2)
+    TITLE = ("TIT2", Mp3Info.TITLE.value[0] , mutagen.id3.TIT2)
     # 专辑名称
-    ALBUM = ("TALB", Id3Attribute.ALBUM.value[0] , mutagen.id3.TALB)
+    ALBUM = ("TALB", Mp3Info.ALBUM.value[0] , mutagen.id3.TALB)
     # 艺术家
-    ARTIST = ("TPE1", Id3Attribute.ARTIST.value[0] , mutagen.id3.TPE1)
+    ARTIST = ("TPE1", Mp3Info.ARTIST.value[0] , mutagen.id3.TPE1)
     # 作曲
-    COMPOSTER = ("TCOM", Id3Attribute.COMPOSTER.value[0],mutagen.id3.TCOM)
+    COMPOSTER = ("TCOM", Mp3Info.COMPOSTER.value[0],mutagen.id3.TCOM)
     # 组
-    GROUPING = ("TIT1", Id3Attribute.GROUPING.value[0],mutagen.id3.TIT1)
+    GROUPING = ("TIT1", Mp3Info.GROUPING.value[0],mutagen.id3.TIT1)
     # 类型
-    GENRE = ("TCON", Id3Attribute.GENRE.value[0],mutagen.id3.TCON)
+    GENRE = ("TCON", Mp3Info.GENRE.value[0],mutagen.id3.TCON)
     # 轨道
-    TRACK = ("TRCK", Id3Attribute.TRACK.value[0],mutagen.id3.TRCK)
+    TRACK = ("TRCK", Mp3Info.TRACK.value[0],mutagen.id3.TRCK)
     #
-    DISC = ("TPOS", Id3Attribute.DISC.value[0],mutagen.id3.TPOS)
+    DISC = ("TPOS", Mp3Info.DISC.value[0],mutagen.id3.TPOS)
     # 发布年份
-    YEAR = ("TDRC", Id3Attribute.YEAR.value[0],mutagen.id3.TDRC)
+    YEAR = ("TDRC", Mp3Info.YEAR.value[0],mutagen.id3.TDRC)
     # bpm
-    BPM = ("TBPM", Id3Attribute.BPM.value[0],mutagen.id3.TBPM)
+    BPM = ("TBPM", Mp3Info.BPM.value[0],mutagen.id3.TBPM)
     # 评分 未找到字段
     #RATING = ("rating", Id3Attribute.RATING.value[0])
     # 歌词
-    LYRICE = ("USLT::eng", Id3Attribute.LYRICE.value[0],mutagen.id3.USLT)
+    LYRICE = ("USLT::eng", Mp3Info.LYRICE.value[0],mutagen.id3.USLT)
     # 评论
-    COMMENTS = ("COMM::XXX", Id3Attribute.COMMENTS.value[0],mutagen.id3.COMM)
+    COMMENTS = ("COMM::XXX", Mp3Info.COMMENTS.value[0],mutagen.id3.COMM)
     # 图片地址
-    IMAGE = ("APIC:", Id3Attribute.IMAGE.value[0],mutagen.id3.APIC)
+    IMAGE = ("APIC:", Mp3Info.IMAGE.value[0],mutagen.id3.APIC)

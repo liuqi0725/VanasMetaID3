@@ -22,8 +22,8 @@ from io import BytesIO
 
 from PIL import Image, ImageTk
 
-from com.liuqi.vanas.id3.Mp3Id3 import Id3V1
-from com.liuqi.vanas.id3.config import Id3Attribute
+from com.liuqi.vanas.id3.Mp3Id3 import ID3
+from com.liuqi.vanas.id3.config import Mp3Info
 from com.liuqi.vanas.tools import TkMessage
 
 import math
@@ -144,14 +144,14 @@ class Dialog:
         '''
             把所有的输入框的值填充到当前的 id3 信息中
         '''
-        for name, member in Id3Attribute.__members__.items():
+        for name, member in Mp3Info.__members__.items():
             entry_data = self.__get_entry(member.value[0])
             if (entry_data != None):
                 # 获取值保存
                 self.__curselection_music_id3__[member.value[0]] = entry_data.get()
 
         # 获取歌词
-        self.__curselection_music_id3__[Id3Attribute.LYRICE.value[0]] = self.lyrics.get(0.0, END)
+        self.__curselection_music_id3__[Mp3Info.LYRICE.value[0]] = self.lyrics.get(0.0, END)
 
         # print(self.__curselection_music_id3__)
 
@@ -179,9 +179,9 @@ class Dialog:
         :param filePath: 文件路径
         :return:
         """
-        self.mp3 = mp3 = Id3V1(file_path)
-        self.__curselection_music_id3__ = id3v1 = mp3.v1info()
-        id3image = id3v1[Id3Attribute.IMAGE.value[0]]
+        self.mp3 = id3 = ID3(file_path)
+        self.__curselection_music_id3__ = id3v1 = id3.v1info()
+        id3image = id3v1[Mp3Info.IMAGE.value[0]]
 
         # 变更图片
         if(id3image != None):
@@ -209,16 +209,16 @@ class Dialog:
         len = 1
 
         # 所有字段分 3 列 , 去掉 time , image , lyrics 枚举字段 除 2 为换列的数值
-        newcolumn = math.ceil((Id3Attribute.__len__() - 3) / 2)
+        newcolumn = math.ceil((Mp3Info.__len__() - 3) / 2)
 
         # 时间 、 图片不是属性
-        for key,member in Id3Attribute.__members__.items():
+        for key,member in Mp3Info.__members__.items():
 
-            if(member is Id3Attribute.TIME):
+            if(member is Mp3Info.TIME):
                 continue
-            elif(member is Id3Attribute.IMAGE):
+            elif(member is Mp3Info.IMAGE):
                 continue
-            elif(member is Id3Attribute.LYRICE):
+            elif(member is Mp3Info.LYRICE):
                 continue
 
             Label(master, text=member.value[0]).grid(row=row, column=column, sticky=sticky, padx=padx)
@@ -294,7 +294,7 @@ class Dialog:
         if (bytes != None):
             image = Image.open(BytesIO(bytes)).resize(size, Image.ANTIALIAS)
             # 替换 id3 中的信息
-            self.__curselection_music_id3__[Id3Attribute.IMAGE.value[0]] = bytes
+            self.__curselection_music_id3__[Mp3Info.IMAGE.value[0]] = bytes
         else:
             image = Image.open(path).resize(size, Image.ANTIALIAS)
             if(path != 'images/defaultAlbum.jpeg'):
@@ -302,7 +302,7 @@ class Dialog:
                 bytes = io.BytesIO()
                 image.save(bytes, format='JPEG')
                 bytes = bytes.getvalue()
-                self.__curselection_music_id3__[Id3Attribute.IMAGE.value[0]] = bytes
+                self.__curselection_music_id3__[Mp3Info.IMAGE.value[0]] = bytes
 
         return ImageTk.PhotoImage(image)
 
@@ -340,7 +340,7 @@ class Dialog:
 
         self.lyrics.delete(1.0, END)
         if(data != None):
-            self.lyrics.insert(1.0, data[Id3Attribute.LYRICE.value[0]])
+            self.lyrics.insert(1.0, data[Mp3Info.LYRICE.value[0]])
 
     def __choose_musicfile(self):
         """
@@ -370,14 +370,3 @@ class Dialog:
         if file_names:
             for name in file_names:
                 self.__music_lb__.insert(END, dirName + "/" + name)
-
-        # for item in ['Chinese', 'English', 'Math', 'Chinese', 'English', 'Math', 'English', 'Math', 'Chinese',
-        #              'English',
-        #              'Chinese', 'English', 'Math', 'Chinese', 'English', 'Math', 'English', 'Math', 'Chinese',
-        #              'English', 'Chinese', 'English', 'Math', 'Chinese', 'English', 'Math', 'English', 'Math',
-        #              'Chinese', 'English',
-        #              'Chinese', 'English', 'Math', 'Chinese', 'English', 'Math', 'English', 'Math', 'Chinese',
-        #              'English', 'Chinese', 'English', 'Math', 'Chinese', 'English', 'Math', 'English', 'Math',
-        #              'Chinese', 'English',
-        #              'Math', 'Chinese', 'English', 'Math']:
-        #     self.__music_lb__.insert(END, item)

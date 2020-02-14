@@ -14,12 +14,12 @@ from mutagen.mp3 import MP3
 import mutagen.id3
 from mutagen.easyid3 import EasyID3
 
-from com.liuqi.vanas.id3.config import Id3Attribute
-from com.liuqi.vanas.id3.config import Id3V1Tag
+from com.liuqi.vanas.id3.config import Mp3Info
+from com.liuqi.vanas.id3.config import Id3Tag
 
 
 
-class Id3V1 :
+class ID3 :
 
     def __init__(self , filePath):
 
@@ -28,20 +28,20 @@ class Id3V1 :
         #     print(k)
 
         self.__audio = MP3(filePath)
-        self.__id3v1clear()
+        self.__id3clear()
         self.__parseInfo()
 
-    def __id3v1clear(self):
+    def __id3clear(self):
 
-        self.__id3V1 = {}
-        for key, member in Id3Attribute.__members__.items():
-            self.__id3V1[member.value[0]] = member.value[1]
+        self.__id3 = {}
+        for key, member in Mp3Info.__members__.items():
+            self.__id3[member.value[0]] = member.value[1]
 
-    def v1info(self):
-        return self.__id3V1
+    def info(self):
+        return self.__id3
 
     def image(self):
-        return self.__id3V1[Id3Attribute.IMAGE.value[0]]
+        return self.__id3[Mp3Info.IMAGE.value[0]]
 
 
     def __parseInfo(self):
@@ -60,104 +60,103 @@ class Id3V1 :
         # self.__getComments()
         # self.__getLyrics()
 
-        self.__getV1Tags()
+        self.__getTags()
 
-    def __getV1Tags(self):
+    def __getTags(self):
 
-        for key,member in Id3V1Tag.__members__.items():
+        for key,member in Id3Tag.__members__.items():
             data = self.__getTag(member.value[0])
             if(data != None):
-                if(key == Id3V1Tag.LYRICE.name):
-                    self.__id3V1[member.value[1]] = data.text
-                elif(key == Id3V1Tag.IMAGE.name):
-                    self.__id3V1[member.value[1]] = data.data
+                if(key == Id3Tag.LYRICE.name):
+                    self.__id3[member.value[1]] = data.text
+                elif(key == Id3Tag.IMAGE.name):
+                    self.__id3[member.value[1]] = data.data
                 else:
-                    self.__id3V1[member.value[1]] = data.text[0]
+                    self.__id3[member.value[1]] = data.text[0]
 
-    def __getTitle(self):
-        data = self.__getTag("TIT2")
-        if (data != None):
-            self.__id3V1[Id3Attribute.TITLE.value[0]] = data.text[0]
-
-    def __getAlbum(self):
-        data = self.__getTag("TALB")
-        if (data != None):
-            self.__id3V1[Id3Attribute.ALBUM.value[0]] = data.text[0]
-
-    def __getArtist(self):
-        data = self.__getTag("TPE1")
-        if (data != None):
-            self.__id3V1[Id3Attribute.ARTIST.value[0]] = data.text[0]
-
-    def __getGrouping(self):
-        data = self.__getTag("TIT1")
-        if (data != None):
-            self.__id3V1[Id3Attribute.GROUPING.value[0]] = data.text[0]
-
-    def __getGenre(self):
-        data = self.__getTag("TCON")
-        if (data != None):
-            self.__id3V1[Id3Attribute.GENRE.value[0]] = data.text[0]
-
-    def __getComposter(self):
-        data = self.__getTag("TCOM")
-        if (data != None):
-            self.__id3V1[Id3Attribute.COMPOSTER.value[0]] = data.text[0]
-
-    def __getYear(self):
-        data = self.__getTag("TDRC")
-        if (data != None):
-            self.__id3V1[Id3Attribute.YEAR.value[0]] = data.text[0]
-
-    def __getTrack(self):
-        data = self.__getTag("TRCK")
-        if (data != None):
-            self.__id3V1[Id3Attribute.TRACK.value[0]] = data.text[0]
-
-    def __getDisc(self):
-        data = self.__getTag("TPOS")
-        if (data != None):
-            self.__id3V1[Id3Attribute.DISC.value[0]] = data.text[0]
-
-    def __getBpm(self):
-        data = self.__getTag("TBPM")
-        if (data != None):
-            self.__id3V1[Id3Attribute.BPM.value[0]] = data.text[0]
-
-    def __getComments(self):
-        data = self.__getTag("COMM::eng")
-        if (data != None):
-            self.__id3V1[Id3Attribute.COMMENTS.value[0]] = data.text[0]
-
-    def __getLyrics(self):
-        data = self.__getTag("USLT::eng")
-        if (data != None):
-            self.__id3V1[Id3Attribute.LYRICE.value[0]] = data.text
-            #print(data.text)
-
-    def __getImage(self):
-        data = self.__getTag("APIC:")
-        if (data != None):
-            self.__id3V1[Id3Attribute.IMAGE.value[0]] = data.data
-
-    def __getTime(self):
-        self.__id3V1[Id3Attribute.TIME.value[0]] = self.__audio.info.length
+    # def __getTitle(self):
+    #     data = self.__getTag("TIT2")
+    #     if (data != None):
+    #         self.__id3[Mp3Info.TITLE.value[0]] = data.text[0]
+    #
+    # def __getAlbum(self):
+    #     data = self.__getTag("TALB")
+    #     if (data != None):
+    #         self.__id3[Mp3Info.ALBUM.value[0]] = data.text[0]
+    #
+    # def __getArtist(self):
+    #     data = self.__getTag("TPE1")
+    #     if (data != None):
+    #         self.__id3[Mp3Info.ARTIST.value[0]] = data.text[0]
+    #
+    # def __getGrouping(self):
+    #     data = self.__getTag("TIT1")
+    #     if (data != None):
+    #         self.__id3[Mp3Info.GROUPING.value[0]] = data.text[0]
+    #
+    # def __getGenre(self):
+    #     data = self.__getTag("TCON")
+    #     if (data != None):
+    #         self.__id3[Mp3Info.GENRE.value[0]] = data.text[0]
+    #
+    # def __getComposter(self):
+    #     data = self.__getTag("TCOM")
+    #     if (data != None):
+    #         self.__id3[Mp3Info.COMPOSTER.value[0]] = data.text[0]
+    #
+    # def __getYear(self):
+    #     data = self.__getTag("TDRC")
+    #     if (data != None):
+    #         self.__id3[Mp3Info.YEAR.value[0]] = data.text[0]
+    #
+    # def __getTrack(self):
+    #     data = self.__getTag("TRCK")
+    #     if (data != None):
+    #         self.__id3[Mp3Info.TRACK.value[0]] = data.text[0]
+    #
+    # def __getDisc(self):
+    #     data = self.__getTag("TPOS")
+    #     if (data != None):
+    #         self.__id3[Mp3Info.DISC.value[0]] = data.text[0]
+    #
+    # def __getBpm(self):
+    #     data = self.__getTag("TBPM")
+    #     if (data != None):
+    #         self.__id3[Mp3Info.BPM.value[0]] = data.text[0]
+    #
+    # def __getComments(self):
+    #     data = self.__getTag("COMM::eng")
+    #     if (data != None):
+    #         self.__id3[Mp3Info.COMMENTS.value[0]] = data.text[0]
+    #
+    # def __getLyrics(self):
+    #     data = self.__getTag("USLT::eng")
+    #     if (data != None):
+    #         self.__id3[Mp3Info.LYRICE.value[0]] = data.text
+    #         #print(data.text)
+    #
+    # def __getImage(self):
+    #     data = self.__getTag("APIC:")
+    #     if (data != None):
+    #         self.__id3[Mp3Info.IMAGE.value[0]] = data.data
+    #
+    # def __getTime(self):
+    #     self.__id3[Mp3Info.TIME.value[0]] = self.__audio.info.length
+    #
 
     def __getTag(self , tagname):
+        """
+        获取标签值
+        :param tagname:
+        :return:
+        """
         if(tagname in self.__audio.tags):
             return self.__audio.tags[tagname]
         else:
             return None
 
-    def __save_str_tag(self , tag , cls , encoding, content):
-        self.__audio[tag] = cls(
-            encoding=encoding,
-            text=[content]
-        )
+    def save(self, id3):
 
-    def save(self, id3v1):
-
-        audio = {}
         '''
         0 ISO-8859-1
         1 UTF16 with BOM
@@ -166,75 +165,75 @@ class Id3V1 :
         '''
         encoding = 3
 
-        for key in id3v1:
+        for key in id3:
 
-            if(key is Id3V1Tag.TITLE.value[1]):
-                self.__audio[Id3V1Tag.TITLE.value[0]] = mutagen.id3.TIT2(
+            if(key is Id3Tag.TITLE.value[1]):
+                self.__audio[Id3Tag.TITLE.value[0]] = mutagen.id3.TIT2(
                     encoding=encoding,
-                    text=[id3v1[key]]
+                    text=[id3[key]]
                 )
-            elif(key is Id3V1Tag.ALBUM.value[1]):
-                self.__audio[Id3V1Tag.ALBUM.value[0]] = mutagen.id3.TALB(
+            elif(key is Id3Tag.ALBUM.value[1]):
+                self.__audio[Id3Tag.ALBUM.value[0]] = mutagen.id3.TALB(
                     encoding=encoding,
-                    text=[id3v1[key]]
+                    text=[id3[key]]
                 )
-            elif (key is Id3V1Tag.ARTIST.value[1]):
-                self.__audio[Id3V1Tag.ARTIST.value[0]] = mutagen.id3.TPE1(
+            elif (key is Id3Tag.ARTIST.value[1]):
+                self.__audio[Id3Tag.ARTIST.value[0]] = mutagen.id3.TPE1(
                     encoding=encoding,
-                    text=[id3v1[key]]
+                    text=[id3[key]]
                 )
-            elif (key is Id3V1Tag.COMPOSTER.value[1]):
-                self.__audio[Id3V1Tag.COMPOSTER.value[0]] = mutagen.id3.TCOM(
+            elif (key is Id3Tag.COMPOSTER.value[1]):
+                self.__audio[Id3Tag.COMPOSTER.value[0]] = mutagen.id3.TCOM(
                     encoding=encoding,
-                    text=[id3v1[key]]
+                    text=[id3[key]]
                 )
-            elif (key is Id3V1Tag.GROUPING.value[1]):
-                self.__audio[Id3V1Tag.GROUPING.value[0]] = mutagen.id3.TIT1(
+            elif (key is Id3Tag.GROUPING.value[1]):
+                self.__audio[Id3Tag.GROUPING.value[0]] = mutagen.id3.TIT1(
                     encoding=encoding,
-                    text=[id3v1[key]]
+                    text=[id3[key]]
                 )
-            elif (key is Id3V1Tag.GENRE.value[1]):
-                self.__audio[Id3V1Tag.GENRE.value[0]] = mutagen.id3.TCON(
+            elif (key is Id3Tag.GENRE.value[1]):
+                self.__audio[Id3Tag.GENRE.value[0]] = mutagen.id3.TCON(
                     encoding=encoding,
-                    text=[id3v1[key]]
+                    text=[id3[key]]
                 )
-            elif (key is Id3V1Tag.TRACK.value[1]):
-                self.__audio[Id3V1Tag.TRACK.value[0]] = mutagen.id3.TRCK(
+            elif (key is Id3Tag.TRACK.value[1]):
+                self.__audio[Id3Tag.TRACK.value[0]] = mutagen.id3.TRCK(
                     encoding=encoding,
-                    text=[id3v1[key]]
+                    text=[id3[key]]
                 )
-            elif (key is Id3V1Tag.DISC.value[1]):
-                self.__audio[Id3V1Tag.DISC.value[0]] = mutagen.id3.TPOS(
+            elif (key is Id3Tag.DISC.value[1]):
+                self.__audio[Id3Tag.DISC.value[0]] = mutagen.id3.TPOS(
                     encoding=encoding,
-                    text=[id3v1[key]]
+                    text=[id3[key]]
                 )
-            elif (key is Id3V1Tag.YEAR.value[1]):
-                self.__audio[Id3V1Tag.YEAR.value[0]] = mutagen.id3.TDRC(
+            elif (key is Id3Tag.YEAR.value[1]):
+                self.__audio[Id3Tag.YEAR.value[0]] = mutagen.id3.TDRC(
                     encoding=encoding,
-                    text=[id3v1[key]]
+                    text=[id3[key]]
                 )
-            elif (key is Id3V1Tag.BPM.value[1]):
-                self.__audio[Id3V1Tag.BPM.value[0]] = mutagen.id3.TBPM(
+            elif (key is Id3Tag.BPM.value[1]):
+                self.__audio[Id3Tag.BPM.value[0]] = mutagen.id3.TBPM(
                     encoding=encoding,
-                    text=[id3v1[key]]
+                    text=[id3[key]]
                 )
-            elif (key is Id3V1Tag.COMMENTS.value[1]):
-                self.__audio[Id3V1Tag.COMMENTS.value[0]] = mutagen.id3.COMM(
+            elif (key is Id3Tag.COMMENTS.value[1]):
+                self.__audio[Id3Tag.COMMENTS.value[0]] = mutagen.id3.COMM(
                     encoding=encoding,
-                    text=[id3v1[key]]
+                    text=[id3[key]]
                 )
-            elif (key is Id3V1Tag.LYRICE.value[1]):
-                self.__audio[Id3V1Tag.LYRICE.value[0]] = mutagen.id3.USLT(
+            elif (key is Id3Tag.LYRICE.value[1]):
+                self.__audio[Id3Tag.LYRICE.value[0]] = mutagen.id3.USLT(
                     encoding=encoding,
                     lang='eng',
-                    text=id3v1[key]
+                    text=id3[key]
                 )
-            elif (key is Id3V1Tag.IMAGE.value[1] and id3v1[key] != None):
-                self.__audio[Id3V1Tag.IMAGE.value[0]] = mutagen.id3.APIC(
+            elif (key is Id3Tag.IMAGE.value[1] and id3[key] != None):
+                self.__audio[Id3Tag.IMAGE.value[0]] = mutagen.id3.APIC(
                     encoding=encoding,
                     mime='image/jpeg',
                     type=3,
-                    data=id3v1[key]
+                    data=id3[key]
                 )
 
         try:
