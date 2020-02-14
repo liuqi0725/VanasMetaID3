@@ -1,4 +1,4 @@
-## VanasMetaID3 是一个简单修改 MP3 ID3V1 信息的工具
+## VanasMetaID3 是一个简单修改 MP3 ID3 信息的工具
 
 ### 前言
 
