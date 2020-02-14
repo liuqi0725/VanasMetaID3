@@ -180,8 +180,8 @@ class Dialog:
         :return:
         """
         self.mp3 = id3 = ID3(file_path)
-        self.__curselection_music_id3__ = id3v1 = id3.v1info()
-        id3image = id3v1[Mp3Info.IMAGE.value[0]]
+        self.__curselection_music_id3__ = id3_info = id3.info()
+        id3image = id3_info[Mp3Info.IMAGE.value[0]]
 
         # 变更图片
         if(id3image != None):
@@ -190,10 +190,10 @@ class Dialog:
             self.__replace_albumimage(self.__create_albumimage())
 
         # 变更歌词
-        self.__set_lyrics(id3v1)
+        self.__set_lyrics(id3_info)
 
         # 变更 id3 信息
-        self.__set_all_entry(id3v1)
+        self.__set_all_entry(id3_info)
 
     def __add_attr(self,master):
         """
@@ -320,6 +320,9 @@ class Dialog:
         选择一张专辑图片
         :return:
         """
+        if (self.__curselection_music__ == None):
+            TkMessage.warning("请选择歌曲")
+            return None
         filename = askopenfilename(filetypes=[("image file", [".png",".jpeg",".jpg"])])
         # 替换图片
         self.__replace_albumimage(self.__create_albumimage(path=filename))
