@@ -15,6 +15,8 @@ import mutagen.id3
 
 ID3V1_DEFAULT_CODE = "gbk"
 
+ID3_DEFAULT_GROUP = "Alexliu"
+
 @unique
 class Mp3Info (Enum):
 

@@ -10,21 +10,21 @@
 # @Desc     : 目的?
 # -------------------------------------------------------------------------------
 
+import os
+import io
+from io import BytesIO
+
 from tkinter import ttk
 from tkinter import *
 from tkinter.filedialog import askdirectory
 from tkinter.filedialog import askopenfilename
-
-import os
-
-import io
-from io import BytesIO
 
 from PIL import Image, ImageTk
 
 from com.liuqi.vanas.id3.Mp3Id3 import ID3
 from com.liuqi.vanas.id3.config import Mp3Info
 from com.liuqi.vanas.id3.config import Id3Encodeing
+from com.liuqi.vanas.id3.config import ID3_DEFAULT_GROUP
 from com.liuqi.vanas.tools import TkMessage
 
 import math
@@ -167,6 +167,7 @@ class Dialog:
 
 
         # 保存
+        # 懒得弄 coding
         if self.id3Obj.save(self.__curselection_music_id3__):
             TkMessage.info("保存成功")
         else:
@@ -262,7 +263,7 @@ class Dialog:
 
     def __add_lyrics(self,master):
         Label(master, text="歌词").grid(row=0, column=3, sticky=N + S)
-        self.lyrics = lyrics = Text(master,width=35 , height=16)
+        self.lyrics = lyrics = Text(master,width=35 , height=16 , borderwidth=2)
         lyrics.grid(row=1, column=3)
 
     def __set_lyrics(self,lyrics=None):
@@ -308,6 +309,7 @@ class Dialog:
                 continue
 
             Label(master, text=member.value[0]).grid(row=row, column=column, sticky=sticky, padx=padx)
+
             self.__add_entry(member.value[0], master).grid(row=row, column=(column + 1), pady=padx)
 
             if (len == newcolumn):
@@ -318,7 +320,7 @@ class Dialog:
                 len += 1 # 数量++
                 row += 1
 
-    def __add_entry(self ,attrbute_name , root=None ):
+    def __add_entry(self ,attrbute_name , root=None):
         """
         设置输入框
         :param attrbuteName: 属性名称
@@ -354,6 +356,8 @@ class Dialog:
                 self.__set_entry(k, "")
         else:
             for k,v in id3Info.items():
+                if k is Mp3Info.GROUPING.title:
+                    v = ID3_DEFAULT_GROUP
                 self.__set_entry(k, v)
 
     def __set_entry(self ,attrbute_name, val=""):

@@ -49,6 +49,7 @@ class ID3V1:
 
         fileStream = open(self._filePath, "wb")
         try:
+            #print(save_data[-128:])
             fileStream.write(save_data)
         except Exception as e:
             # 出现异常，写入原始字节，保持数据不变
