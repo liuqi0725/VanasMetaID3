@@ -10,7 +10,7 @@
 # @Desc     : 目的?
 # -------------------------------------------------------------------------------
 
-import tkinter as tk
+from tkinter import ttk
 from tkinter import *
 from tkinter.filedialog import askdirectory
 from tkinter.filedialog import askopenfilename
@@ -24,6 +24,7 @@ from PIL import Image, ImageTk
 
 from com.liuqi.vanas.id3.Mp3Id3 import ID3
 from com.liuqi.vanas.id3.config import Mp3Info
+from com.liuqi.vanas.id3.config import Id3Encodeing
 from com.liuqi.vanas.tools import TkMessage
 
 import math
@@ -95,15 +96,18 @@ class Dialog:
         # 专辑图片信息
         image = self.__create_albumimage()
         _albumimage = Label(frmRTL, image=image)
-        _albumimage.grid(row=0, column=0, columnspan=2, sticky=W)
+        _albumimage.grid(row=0, column=0, rowspan=2,columnspan=2, sticky=N + S)
         self._albumimage = _albumimage
 
         # 加载图片
-        Button(frmRTL, text="load", command=self.__choose_albumimage).grid(row=1, column=0)
-        Button(frmRTL, text="clear", command=self.__clear_albumimage).grid(row=1, column=1)
+        Button(frmRTL, text="load", command=self.__choose_albumimage).grid(row=2, column=0)
+        Button(frmRTL, text="clear", command=self.__clear_albumimage).grid(row=2, column=1)
 
         # 歌词
         self.__add_lyrics(frmRTR)
+
+        # 字符编码
+        self.__add_encoding(frmRTR)
 
         # id3 信息
         self.__add_attr(frmRB)
@@ -145,18 +149,25 @@ class Dialog:
             把所有的输入框的值填充到当前的 id3 信息中
         '''
         for name, member in Mp3Info.__members__.items():
-            entry_data = self.__get_entry(member.value[0])
+            entry_data = self.__get_entry(member.title)
             if (entry_data != None):
                 # 获取值保存
-                self.__curselection_music_id3__[member.value[0]] = entry_data.get()
+                self.__curselection_music_id3__[member.title] = entry_data.get()
 
         # 获取歌词
-        self.__curselection_music_id3__[Mp3Info.LYRICE.value[0]] = self.lyrics.get(0.0, END)
+        self.__curselection_music_id3__[Mp3Info.LYRICE.title] = self.lyrics.get(0.0, END)
 
-        # print(self.__curselection_music_id3__)
+        # 获取 encoding
+        selected_coding = self.__coding.get()
+
+        for name, member in Id3Encodeing.__members__.items():
+            if member.equal_text(selected_coding):
+                selected_coding = member.code
+                break
+
 
         # 保存
-        if(self.mp3.save(self.__curselection_music_id3__)):
+        if self.id3Obj.save(self.__curselection_music_id3__):
             TkMessage.info("保存成功")
         else:
             TkMessage.error("保存失败")
@@ -179,9 +190,9 @@ class Dialog:
         :param filePath: 文件路径
         :return:
         """
-        self.mp3 = id3 = ID3(file_path)
-        self.__curselection_music_id3__ = id3_info = id3.info()
-        id3image = id3_info[Mp3Info.IMAGE.value[0]]
+        self.id3Obj = ID3(file_path)
+        self.__curselection_music_id3__ = self.id3Obj.info()
+        id3image = self.__curselection_music_id3__[Mp3Info.IMAGE.title]
 
         # 变更图片
         if(id3image != None):
@@ -190,10 +201,85 @@ class Dialog:
             self.__replace_albumimage(self.__create_albumimage())
 
         # 变更歌词
-        self.__set_lyrics(id3_info)
+        self.__set_lyrics(self.__curselection_music_id3__[Mp3Info.LYRICE.title])
 
         # 变更 id3 信息
-        self.__set_all_entry(id3_info)
+        self.__set_all_entry(self.__curselection_music_id3__)
+
+    def __create_albumimage(self , path='images/defaultAlbum.jpeg' , bytes=None , size=(230,230)):
+        """
+        创建专辑封面
+        :param path: 图片路径 如果 bytes 不为None 通过 bytes 读取   2 选 1
+        :param bytes: 图片二进制字节 如果字节为 None 通过路径读取     2 选 1
+        :param size: 图片显示大小
+        :return:
+        """
+
+        if (bytes != None):
+            image = Image.open(BytesIO(bytes)).resize(size, Image.ANTIALIAS)
+            # 替换 id3 中的信息
+            self.__curselection_music_id3__[Mp3Info.IMAGE.title] = bytes
+        else:
+            image = Image.open(path).resize(size, Image.ANTIALIAS)
+            if(path != 'images/defaultAlbum.jpeg'):
+                # 替换 id3 中的信息
+                bytes = io.BytesIO()
+                image.save(bytes, format='JPEG')
+                bytes = bytes.getvalue()
+                self.__curselection_music_id3__[Mp3Info.IMAGE.title] = bytes
+
+        return ImageTk.PhotoImage(image)
+
+    def __replace_albumimage(self, img):
+        """
+        替换图片
+        :param img: 通过 __create_albumimage 生成对象
+        :return:
+        """
+        self._albumimage.configure(image=img)
+        self._albumimage.image = img
+
+    def __choose_albumimage(self):
+        """
+        选择一张专辑图片
+        :return:
+        """
+        if (self.__curselection_music__ == None):
+            TkMessage.warning("请选择歌曲")
+            return None
+        filename = askopenfilename(filetypes=[("image file", [".png",".jpeg",".jpg"])])
+
+        if filename:
+            # 替换图片
+            self.__replace_albumimage(self.__create_albumimage(path=filename))
+
+    def __clear_albumimage(self):
+        """
+        恢复专辑图片默认
+        :return:
+        """
+        self.__replace_albumimage(self.__create_albumimage())
+
+    def __add_lyrics(self,master):
+        Label(master, text="歌词").grid(row=0, column=3, sticky=N + S)
+        self.lyrics = lyrics = Text(master,width=35 , height=16)
+        lyrics.grid(row=1, column=3)
+
+    def __set_lyrics(self,lyrics=None):
+
+        self.lyrics.delete(1.0, END)
+        if(lyrics != None):
+            self.lyrics.insert(1.0, lyrics)
+
+    def __add_encoding(self, master):
+
+        vals = ()
+        for name, enum_obj in Id3Encodeing.__members__.items():
+            vals += (enum_obj.text,)
+
+        self.__coding = numberChosen = ttk.Combobox(master, values=vals)
+        numberChosen.grid(row=2 , column=3)  # 设置其在界面中出现的位置  column代表列   row 代表行
+        numberChosen.current(0)
 
     def __add_attr(self,master):
         """
@@ -232,7 +318,6 @@ class Dialog:
                 len += 1 # 数量++
                 row += 1
 
-
     def __add_entry(self ,attrbute_name , root=None ):
         """
         设置输入框
@@ -257,18 +342,18 @@ class Dialog:
 
         return None
 
-    def __set_all_entry(self , data=None):
+    def __set_all_entry(self , id3Info=None):
         """
         批量设置输入框值
         :param data: json|map 对象
         :return: None
         """
-        if(data == None):
+        if(id3Info == None):
             # 清空
             for k in self.__entrys__:
                 self.__set_entry(k, "")
         else:
-            for k,v in data.items():
+            for k,v in id3Info.items():
                 self.__set_entry(k, v)
 
     def __set_entry(self ,attrbute_name, val=""):
@@ -282,68 +367,6 @@ class Dialog:
             self.__entrys__[attrbute_name].delete(0, END)
             self.__entrys__[attrbute_name].insert(0, val)
 
-    def __create_albumimage(self , path='images/defaultAlbum.jpeg' , bytes=None , size=(230,230)):
-        """
-        创建专辑封面
-        :param path: 图片路径 如果 bytes 不为None 通过 bytes 读取   2 选 1
-        :param bytes: 图片二进制字节 如果字节为 None 通过路径读取     2 选 1
-        :param size: 图片显示大小
-        :return:
-        """
-
-        if (bytes != None):
-            image = Image.open(BytesIO(bytes)).resize(size, Image.ANTIALIAS)
-            # 替换 id3 中的信息
-            self.__curselection_music_id3__[Mp3Info.IMAGE.value[0]] = bytes
-        else:
-            image = Image.open(path).resize(size, Image.ANTIALIAS)
-            if(path != 'images/defaultAlbum.jpeg'):
-                # 替换 id3 中的信息
-                bytes = io.BytesIO()
-                image.save(bytes, format='JPEG')
-                bytes = bytes.getvalue()
-                self.__curselection_music_id3__[Mp3Info.IMAGE.value[0]] = bytes
-
-        return ImageTk.PhotoImage(image)
-
-    def __replace_albumimage(self, img):
-        """
-        替换图片
-        :param img: 通过 __create_albumimage 生成对象
-        :return:
-        """
-        self._albumimage.configure(image=img)
-        self._albumimage.image = img
-
-    def __choose_albumimage(self):
-        """
-        选择一张专辑图片
-        :return:
-        """
-        if (self.__curselection_music__ == None):
-            TkMessage.warning("请选择歌曲")
-            return None
-        filename = askopenfilename(filetypes=[("image file", [".png",".jpeg",".jpg"])])
-        # 替换图片
-        self.__replace_albumimage(self.__create_albumimage(path=filename))
-
-    def __clear_albumimage(self):
-        """
-        恢复专辑图片默认
-        :return:
-        """
-        self.__replace_albumimage(self.__create_albumimage())
-
-    def __add_lyrics(self,master):
-        Label(master, text="歌词").grid(row=0, column=3, sticky=W)
-        self.lyrics = lyrics = Text(master, width=30, height=18)
-        lyrics.grid(row=1, column=3)
-
-    def __set_lyrics(self,data=None):
-
-        self.lyrics.delete(1.0, END)
-        if(data != None):
-            self.lyrics.insert(1.0, data[Mp3Info.LYRICE.value[0]])
 
     def __choose_musicfile(self):
         """
