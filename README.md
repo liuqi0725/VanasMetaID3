@@ -1,4 +1,4 @@
-## VanasMetaID3 是一个简单修改 MP3 ID3V1 信息的工具
+## VanasMetaID3 是一个简单修改 MP3 ID3 信息的工具
 
 ### 前言
 
@@ -36,12 +36,14 @@
 
 ### 打包成可执行的 APP
 
-**先安装 `py2app`**
+**先安装 `py2app` , 当前最新是 0.21**
 ```bash
 pip3 install py2app
 ```
 
-**创建 setup.py**
+**打包成 APP**
+
+如需设置 app，请修改`setup.py`, 具体设置方法参考 [py2app-0.21-Doc](https://py2app.readthedocs.io/en/latest/index.html)
 
 ```bash
 # 项目目录下执行 
